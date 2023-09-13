@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Net;
 using Unity.VisualScripting;
 using UnityEngine;
+using static Unity.VisualScripting.Member;
 
 public class ballBehavior : MonoBehaviour
 {
@@ -9,90 +11,81 @@ public class ballBehavior : MonoBehaviour
 
     GameObject ball;
     GameObject[] ballArray;
+    public GameObject antBuddy = null;
     public ballManager bMan;
     Rigidbody rb;
     List<GameObject> fiveClosest = new List<GameObject>();
     List<GameObject> ballList = new List<GameObject>();
 
-    public float timer = 5;
+    public int ballNumber;
+
+    public bool isLeader = false;
+
+    public ballManager.State state;
+
+    public float randoInt;
     void Start()
     {
         bMan = GameObject.Find("ballManager").GetComponent<ballManager>();
         ball = this.gameObject;
         ballArray = bMan.ballArray;
         rb = this.gameObject.GetComponent<Rigidbody>();
-
-        timer += Time.deltaTime;
-        //GetFiveClosest();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (timer < 0)
-        {
-            GetFiveClosest();
-            timer = 5;
-        }
-        else timer -= Time.deltaTime;
+        state = bMan.state;
 
-        if (ballArray.Length > 0)
+        switch (state)
         {
-            foreach(GameObject theBall in ballArray)
-            {
-                Rigidbody attractMe = theBall.GetComponent<Rigidbody>();
-            
-                Vector3 direction = rb.position - attractMe.position;
-            
-                float distance = (ball.transform.position - theBall.transform.position).magnitude;
-            
-                Vector3 force = direction.normalized;
-            
-                if (distance > 5f)
+            case ballManager.State.idle:
+
+                break;
+
+            case ballManager.State.carbonated:
+
+                foreach (GameObject theBall in ballArray)
                 {
-                    attractMe.AddForce(force);
-                    rb.AddForce(-force);
+                    Rigidbody attractMe = theBall.GetComponent<Rigidbody>();
+
+                    Vector3 direction = rb.position - attractMe.position;
+
+                    float distance = (ball.transform.position - attractMe.transform.position).magnitude;
+
+                    Vector3 force = direction.normalized;
+
+                    if (distance > 5f)
+                    {
+                        attractMe.AddForce(force);
+                        rb.AddForce(-force);
+                    }
+                    else
+                    {
+                        attractMe.AddForce(-force * 50);
+                        rb.AddForce(force * 50);
+                    }
+                }
+                break;
+
+            case ballManager.State.ants:
+
+                if (isLeader)
+                {
+                    rb.AddForce(randoInt, 0.0f, randoInt);
                 }
                 else
                 {
-                    attractMe.AddForce(-force*50);
-                    rb.AddForce(force*50);
+                    Rigidbody followMe = antBuddy.GetComponent<Rigidbody>();
+
+                    Vector3 direction = rb.position - followMe.position;
+
+                    Vector3 force = direction.normalized;
+
+                    rb.AddForce(-force);
                 }
-            }
-        }
-    }
 
-    public void GetFiveClosest()
-    {
-        if (ballList.Count != 0) ballList = new List<GameObject>();
-
-        if (fiveClosest.Count != 0) fiveClosest = new List<GameObject>();
-
-        foreach (GameObject theBall in ballArray)
-        {
-            ballList.Add(theBall);
-        }
-
-        int limit = 6;
-        if (ballArray.Length < 6) limit = ballArray.Length;
-
-        while (fiveClosest.Count < limit)
-        {
-            float closestDist = Mathf.Infinity;
-            GameObject closestBall = null;
-
-            foreach (GameObject theBall in ballList)
-            {
-                float distance = (ball.transform.position - theBall.transform.position).magnitude;
-                if (distance < closestDist)
-                {
-                    closestDist = distance;
-                    closestBall = theBall;
-                }                    
-            }
-
-            fiveClosest.Add(closestBall);
-            ballList.Remove(closestBall);
+                break;
         }
     }
 }
