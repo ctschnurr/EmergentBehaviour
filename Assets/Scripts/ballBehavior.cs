@@ -24,6 +24,9 @@ public class ballBehavior : MonoBehaviour
     public ballManager.State state;
 
     public float randoInt;
+
+    float speed = 1f;
+
     void Start()
     {
         bMan = GameObject.Find("ballManager").GetComponent<ballManager>();
@@ -72,17 +75,21 @@ public class ballBehavior : MonoBehaviour
 
                 if (isLeader)
                 {
-                    rb.AddForce(randoInt, 0.0f, randoInt);
+                    rb.transform.Rotate(new Vector3(0, Random.Range(-90, 90), 0) * Time.deltaTime);
+                    rb.AddForce(transform.forward * 0.5f);
                 }
                 else
                 {
                     Rigidbody followMe = antBuddy.GetComponent<Rigidbody>();
-
+                    
                     Vector3 direction = rb.position - followMe.position;
-
+                    // 
                     Vector3 force = direction.normalized;
+                    // 
+                    // rb.AddForce(-force / 5);
 
-                    rb.AddForce(-force);
+                    rb.transform.Rotate(force);
+                    rb.AddForce(transform.forward * 0.5f);
                 }
 
                 break;

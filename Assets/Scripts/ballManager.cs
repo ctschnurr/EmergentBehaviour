@@ -31,16 +31,16 @@ public class ballManager : MonoBehaviour
 
         ballsCount = ballArray.Length;
 
-        if (Input.GetMouseButtonDown(0))
-        {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-            if (Physics.Raycast(ray, out hit, 100))
-            {
-                System.Array.Resize(ref ballArray, ballArray.Length + 1);
-                ballArray[ballArray.Length - 1] = (Instantiate(ball, hit.point, Quaternion.identity));
-            }
-        }
+        // if (Input.GetMouseButtonDown(0))
+        // {
+        //     Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        //     RaycastHit hit;
+        //     if (Physics.Raycast(ray, out hit, 100))
+        //     {
+        //         System.Array.Resize(ref ballArray, ballArray.Length + 1);
+        //         ballArray[ballArray.Length - 1] = (Instantiate(ball, hit.point, Quaternion.identity));
+        //     }
+        // }
 
     }
 
