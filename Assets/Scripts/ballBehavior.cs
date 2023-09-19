@@ -14,18 +14,13 @@ public class ballBehavior : MonoBehaviour
     public GameObject antBuddy = null;
     public ballManager bMan;
     Rigidbody rb;
-    List<GameObject> fiveClosest = new List<GameObject>();
-    List<GameObject> ballList = new List<GameObject>();
-
-    public int ballNumber;
-
-    public bool isLeader = false;
 
     public ballManager.State state;
 
-    public float randoInt;
+    float distance;
 
-    float speed = 1f;
+    float variableModifier;
+    float fixedModifier;
 
     void Start()
     {
@@ -33,11 +28,15 @@ public class ballBehavior : MonoBehaviour
         ball = this.gameObject;
         ballArray = bMan.ballArray;
         rb = this.gameObject.GetComponent<Rigidbody>();
+
     }
 
     // Update is called once per frame
     void Update()
     {
+        variableModifier = ballManager.variableModifier;
+        fixedModifier = ballManager.fixedModifier;
+
         state = bMan.state;
 
         switch (state)
@@ -46,53 +45,80 @@ public class ballBehavior : MonoBehaviour
 
                 break;
 
-            case ballManager.State.carbonated:
+            case ballManager.State.fixedAttraction:
 
                 foreach (GameObject theBall in ballArray)
                 {
-                    Rigidbody attractMe = theBall.GetComponent<Rigidbody>();
-
-                    Vector3 direction = rb.position - attractMe.position;
-
-                    float distance = (ball.transform.position - attractMe.transform.position).magnitude;
-
-                    Vector3 force = direction.normalized;
-
-                    if (distance > 5f)
+                    if (theBall != this)
                     {
-                        attractMe.AddForce(force);
-                        rb.AddForce(-force);
+                        Rigidbody attractMe = theBall.GetComponent<Rigidbody>();
+
+                        Vector3 direction = rb.position - attractMe.position;
+
+                        float distance = (ball.transform.position - attractMe.transform.position).magnitude;
+
+                        Vector3 force = direction.normalized;
+
+                        if (distance > variableModifier)
+                        {
+                            attractMe.AddForce(force);
+                            rb.AddForce(-force);
+                        }
+                        else
+                        {
+                            attractMe.AddForce(-force);
+                            rb.AddForce(force);
+                        }
                     }
-                    else
-                    {
-                        attractMe.AddForce(-force * 50);
-                        rb.AddForce(force * 50);
-                    }
+
                 }
                 break;
 
-            case ballManager.State.ants:
+            case ballManager.State.variableAttraction:
 
-                if (isLeader)
+                foreach (GameObject theBall in ballArray)
                 {
-                    rb.transform.Rotate(new Vector3(0, Random.Range(-90, 90), 0) * Time.deltaTime);
-                    rb.AddForce(transform.forward * 0.5f);
-                }
-                else
-                {
-                    Rigidbody followMe = antBuddy.GetComponent<Rigidbody>();
-                    
-                    Vector3 direction = rb.position - followMe.position;
-                    // 
-                    Vector3 force = direction.normalized;
-                    // 
-                    // rb.AddForce(-force / 5);
+                    if(theBall != this)
+                    {
+                        Rigidbody attractMe = theBall.GetComponent<Rigidbody>();
 
-                    rb.transform.Rotate(force);
-                    rb.AddForce(transform.forward * 0.5f);
-                }
+                        Vector3 direction = rb.position - attractMe.position;
 
+                        distance = (ball.transform.position - attractMe.transform.position).magnitude;
+
+                        Vector3 force = direction.normalized;
+
+                        distance -= variableModifier;
+
+                        attractMe.AddForce(force * distance);
+                        rb.AddForce(-force * distance);
+                    }
+                }
                 break;
         }
     }
 }
+
+// save this code:
+//                 case ballManager.State.variableRepel:
+// 
+//                 if (isLeader)
+//                 {
+//                     rb.transform.Rotate(new Vector3(0, Random.Range(-90, 90), 0) );
+// rb.AddForce(transform.forward * 0.5f);
+//                 }
+//                 else
+// {
+//     Rigidbody followMe = antBuddy.GetComponent<Rigidbody>();
+// 
+//     Vector3 direction = rb.position - followMe.position;
+//     // 
+//     Vector3 force = direction.normalized;
+//     // 
+//     // rb.AddForce(-force / 5);
+// 
+//     rb.transform.Rotate(force);
+//     rb.AddForce(transform.forward * 0.5f);
+// }
+// 
+// break;
