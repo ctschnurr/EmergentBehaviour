@@ -20,7 +20,7 @@ public class ballBehavior : MonoBehaviour
     float distance;
 
     float variableModifier;
-    float fixedModifier;
+    public float randomModifier = 0;
 
     void Start()
     {
@@ -35,67 +35,92 @@ public class ballBehavior : MonoBehaviour
     void Update()
     {
         variableModifier = ballManager.variableModifier;
-        fixedModifier = ballManager.fixedModifier;
 
         state = bMan.state;
 
-        switch (state)
+        if (bMan.on)
         {
-            case ballManager.State.idle:
+            switch (state)
+            {
+                case ballManager.State.idle:
 
-                break;
+                    break;
 
-            case ballManager.State.fixedAttraction:
+                case ballManager.State.fixedAttraction:
 
-                foreach (GameObject theBall in ballArray)
-                {
-                    if (theBall != this)
+                    foreach (GameObject theBall in ballArray)
                     {
-                        Rigidbody attractMe = theBall.GetComponent<Rigidbody>();
-
-                        Vector3 direction = rb.position - attractMe.position;
-
-                        float distance = (ball.transform.position - attractMe.transform.position).magnitude;
-
-                        Vector3 force = direction.normalized;
-
-                        if (distance > variableModifier)
+                        if (theBall != this)
                         {
-                            attractMe.AddForce(force);
-                            rb.AddForce(-force);
+                            Rigidbody attractMe = theBall.GetComponent<Rigidbody>();
+
+                            Vector3 direction = rb.position - attractMe.position;
+
+                            float distance = (ball.transform.position - attractMe.transform.position).magnitude;
+
+                            Vector3 force = direction.normalized;
+
+                            if (distance > variableModifier)
+                            {
+                                attractMe.AddForce(force);
+                                rb.AddForce(-force);
+                            }
+                            else
+                            {
+                                attractMe.AddForce(-force);
+                                rb.AddForce(force);
+                            }
                         }
-                        else
+
+                    }
+                    break;
+
+                case ballManager.State.variableAttraction:
+
+                    foreach (GameObject theBall in ballArray)
+                    {
+                        if (theBall != this)
                         {
-                            attractMe.AddForce(-force);
-                            rb.AddForce(force);
+                            Rigidbody attractMe = theBall.GetComponent<Rigidbody>();
+
+                            Vector3 direction = rb.position - attractMe.position;
+
+                            distance = (ball.transform.position - attractMe.transform.position).magnitude;
+
+                            Vector3 force = direction.normalized;
+
+                            distance -= variableModifier;
+
+                            attractMe.AddForce(force * distance);
+                            rb.AddForce(-force * distance);
                         }
                     }
+                    break;
 
-                }
-                break;
+                case ballManager.State.randomAttraction:
 
-            case ballManager.State.variableAttraction:
-
-                foreach (GameObject theBall in ballArray)
-                {
-                    if(theBall != this)
+                    foreach (GameObject theBall in ballArray)
                     {
-                        Rigidbody attractMe = theBall.GetComponent<Rigidbody>();
+                        if (theBall != this)
+                        {
+                            Rigidbody attractMe = theBall.GetComponent<Rigidbody>();
 
-                        Vector3 direction = rb.position - attractMe.position;
+                            Vector3 direction = rb.position - attractMe.position;
 
-                        distance = (ball.transform.position - attractMe.transform.position).magnitude;
+                            distance = (ball.transform.position - attractMe.transform.position).magnitude;
 
-                        Vector3 force = direction.normalized;
+                            Vector3 force = direction.normalized;
 
-                        distance -= variableModifier;
+                            distance -= (variableModifier * randomModifier);
 
-                        attractMe.AddForce(force * distance);
-                        rb.AddForce(-force * distance);
+                            attractMe.AddForce(force * distance);
+                            rb.AddForce(-force * distance);
+                        }
                     }
-                }
-                break;
+                    break;
+            }
         }
+        
     }
 }
 

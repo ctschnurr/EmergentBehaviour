@@ -12,7 +12,7 @@ public class ballManager : MonoBehaviour
     public GameObject[] ballArray = new GameObject[0];
 
     public static float variableModifier;
-    public static float fixedModifier;
+    public static float randomModifier;
 
     TextMeshProUGUI description;
     
@@ -25,10 +25,13 @@ public class ballManager : MonoBehaviour
     {
         idle,
         fixedAttraction,
-        variableAttraction
+        variableAttraction,
+        randomAttraction
     }
 
-    public State state = State.idle;
+    public bool on = false;
+
+    public State state = State.fixedAttraction;
 
     void Start()
     {
@@ -43,22 +46,33 @@ public class ballManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        UpdateDisctiption();
         variableModifier = variableSlider.value;
         variableSliderText.text = "Distance Modifier: " + variableModifier;
+    }
 
-        if (state == State.fixedAttraction)
+    void UpdateDisctiption()
+    {
+        switch(state)
         {
-            description.text = "Fixed Attraction: Objects attract if further than " + variableSlider.value + " units apart, and repel if within " + variableSlider.value + " units.";
-        }
-
-        if (state == State.variableAttraction)
-        {
-            description.text = "Variable Attraction: Objects attract and repel with strength based on distance between objects. The change threshold between attract/repel is distance -= " + variableSlider.value;
+            case State.idle:
+                break;
+            case State.fixedAttraction:
+                description.text = "\nFixed Attraction:\n\nObjects attract if further than " + variableSlider.value + " units apart, and repel if within " + variableSlider.value + " units.\n\nAt higher distance settings, creates an interesting diamond behavior.";
+                break;
+            case State.variableAttraction:
+                description.text = "\nVariable Attraction:\n\nObjects attract and repel with force based on distance between objects.\n\nAttraction is calulated with force * distance, and distance is adjusted by modifier: distance -= " + variableSlider.value;
+                break;
+            case State.randomAttraction:
+                description.text = "\nRandom Attraction:\n\nObjects attract and repel with strength based on distance with modifier " + variableSlider.value + ", plus each ball has an additional modifier between 1 and 3.\n\nAt higher distance settings, has an interesting magnet-like spinning behavior.";
+                break;
         }
     }
 
     public void ResetBalls()
     {
+        on = false;
+
         description.text = " ";
 
         // ballsNumber = 0;
@@ -67,7 +81,6 @@ public class ballManager : MonoBehaviour
             GameObject.Destroy(theBall);
         }
 
-        state = State.idle;
         Array.Clear(ballArray, 0, ballArray.Length);
         Array.Resize(ref ballArray, 0);
 
@@ -78,9 +91,16 @@ public class ballManager : MonoBehaviour
                 System.Array.Resize(ref ballArray, ballArray.Length + 1);
                 //ballArray[ballArray.Length - 1] = (Instantiate(ball, new Vector3(i, 0, j), Quaternion.identity));
                 GameObject newBall = Instantiate(ball, new Vector3(i, 0, j), Quaternion.identity);
+                ballBehavior newBallBehavior = newBall.GetComponent<ballBehavior>();
+                newBallBehavior.randomModifier = UnityEngine.Random.Range(1, 4);
                 ballArray[ballArray.Length - 1] = newBall;
             }
         }
+    }
+
+    public void Go()
+    {
+        on = true;
     }
 
     public void SetFixedAttraction()
@@ -91,6 +111,11 @@ public class ballManager : MonoBehaviour
     public void SetVariableAttraction()
     {
         state = State.variableAttraction;
+    }
+
+    public void SetRandomAttraction()
+    {
+        state = State.randomAttraction;
     }
 
 }
