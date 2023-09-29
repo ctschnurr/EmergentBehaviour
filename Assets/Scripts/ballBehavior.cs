@@ -38,7 +38,7 @@ public class ballBehavior : MonoBehaviour
 
         state = bMan.state;
 
-        if (bMan.on)
+        if (bMan.on) // the ball manager controls whether or not the balls are active
         {
             switch (state)
             {
@@ -46,7 +46,7 @@ public class ballBehavior : MonoBehaviour
 
                     break;
 
-                case ballManager.State.fixedAttraction:
+                case ballManager.State.fixedAttraction: // fixed attraction causes the balls to repel if within the modifier threshold and attract if outside of that threshold
 
                     foreach (GameObject theBall in ballArray)
                     {
@@ -75,7 +75,7 @@ public class ballBehavior : MonoBehaviour
                     }
                     break;
 
-                case ballManager.State.variableAttraction:
+                case ballManager.State.variableAttraction: // variable attraction uses the modifier threshold in a different manner for a different effect
 
                     foreach (GameObject theBall in ballArray)
                     {
@@ -97,7 +97,7 @@ public class ballBehavior : MonoBehaviour
                     }
                     break;
 
-                case ballManager.State.randomAttraction:
+                case ballManager.State.randomAttraction:  // balls are assigned a 1, 2, or 3 additional modifier to add a random factor
 
                     foreach (GameObject theBall in ballArray)
                     {
@@ -123,27 +123,3 @@ public class ballBehavior : MonoBehaviour
         
     }
 }
-
-// save this code:
-//                 case ballManager.State.variableRepel:
-// 
-//                 if (isLeader)
-//                 {
-//                     rb.transform.Rotate(new Vector3(0, Random.Range(-90, 90), 0) );
-// rb.AddForce(transform.forward * 0.5f);
-//                 }
-//                 else
-// {
-//     Rigidbody followMe = antBuddy.GetComponent<Rigidbody>();
-// 
-//     Vector3 direction = rb.position - followMe.position;
-//     // 
-//     Vector3 force = direction.normalized;
-//     // 
-//     // rb.AddForce(-force / 5);
-// 
-//     rb.transform.Rotate(force);
-//     rb.AddForce(transform.forward * 0.5f);
-// }
-// 
-// break;
